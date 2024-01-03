@@ -1,0 +1,259 @@
+// File index.html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Website Lembaga</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Website Lembaga</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="profil.html">Profil</a></li>
+                    <li><a href="layanan.html">Layanan</a></li>
+                    <li><a href="kontak.html">Kontak</a></li>
+                    <li><a href="login.php">Login</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <h2>Selamat Datang di Website Lembaga</h2>
+            <p>Website ini adalah website resmi dari lembaga XYZ. Lembaga XYZ adalah lembaga yang bergerak di bidang pendidikan, kesehatan, dan sosial. Lembaga XYZ berdiri sejak tahun 2020 dan telah memberikan banyak manfaat bagi masyarakat.</p>
+            <p>Di website ini, Anda dapat mengetahui informasi seputar profil, visi, misi, tujuan, dan kegiatan lembaga XYZ. Anda juga dapat mengakses layanan yang disediakan oleh lembaga XYZ, seperti pendaftaran, konsultasi, donasi, dan lain-lain. Selain itu, Anda juga dapat menghubungi kami melalui formulir kontak yang tersedia.</p>
+            <p>Kami berharap website ini dapat memberikan informasi yang bermanfaat bagi Anda dan dapat meningkatkan kerjasama antara lembaga XYZ dengan masyarakat. Terima kasih telah mengunjungi website kami.</p>
+        </main>
+        <footer>
+            <p>© 2024 Lembaga XYZ. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
+// File style.css
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+}
+
+header h1 {
+    display: inline-block;
+    font-size: 24px;
+}
+
+nav {
+    display: inline-block;
+    float: right;
+}
+
+nav ul {
+    list-style: none;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+}
+
+main h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+main p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+// File login.php
+<?php
+// Memulai session
+session_start();
+
+// Mengecek apakah user sudah login
+if (isset($_SESSION["username"])) {
+    // Jika sudah login, redirect ke halaman admin
+    header("Location: admin.php");
+    exit;
+}
+
+// Membuat variabel untuk menyimpan pesan error
+$error = "";
+
+// Membuat koneksi ke database
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "lembaga";
+$conn = mysqli_connect($host, $user, $pass, $db) or die("Koneksi gagal: " . mysqli_connect_error());
+
+// Mengecek apakah form login sudah disubmit
+if (isset($_POST["submit"])) {
+    // Mengambil data dari form login
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+
+    // Membuat query untuk mencari data user di database
+    $sql = "SELECT * FROM user WHERE username = '$username'";
+    $result = mysqli_query($conn, $sql);
+
+    // Mengecek apakah query berhasil
+    if ($result) {
+        // Mengecek apakah ada data user yang sesuai
+        if (mysqli_num_rows($result) > 0) {
+            // Mengambil data user dari database
+            $row = mysqli_fetch_assoc($result);
+
+            // Mengecek apakah password yang dimasukkan benar
+            if (password_verify($password, $row["password"])) {
+                // Jika password benar, membuat session untuk user
+                $_SESSION["username"] = $username;
+
+                // Redirect ke halaman admin
+                header("Location: admin.php");
+                exit;
+            } else {
+                // Jika password salah, menampilkan pesan error
+                $error = "Password salah";
+            }
+        } else {
+            // Jika tidak ada data user yang sesuai, menampilkan pesan error
+            $error = "Username tidak ditemukan";
+        }
+    } else {
+        // Jika query gagal, menampilkan pesan error
+        $error = "Terjadi kesalahan: " . mysqli_error($conn);
+    }
+}
+
+// Menutup koneksi ke database
+mysqli_close($conn);
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Login | Website Lembaga</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Website Lembaga</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="profil.html">Profil</a></li>
+                    <li><a href="layanan.html">Layanan</a></li>
+                    <li><a href="kontak.html">Kontak</a></li>
+                    <li><a href="login.php">Login</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <h2>Login</h2>
+            <?php
+            // Menampilkan pesan error jika ada
+            if ($error != "") {
+                echo "<p style='color:red'>$error</p>";
+            }
+            ?>
+            <form action="login.php" method="post">
+                <p>
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" id="username" required>
+                </p>
+                <p>
+                    <label for="password">Password:</label>
+                    <input type="password" name="password" id="password" required>
+                </p>
+                <p>
+                    <input type="submit" name="submit" value="Login">
+                </p>
+            </form>
+        </main>
+        <footer>
+            <p>© 2024 Lembaga XYZ. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
+// File admin.php
+<?php
+// Memulai session
+session_start();
+
+// Mengecek apakah user sudah login
+if (!isset($_SESSION["username"])) {
+    // Jika belum login, redirect ke halaman login
+    header("Location: login.php");
+    exit;
+}
+
+// Membuat variabel untuk menyimpan username
+$username = $_SESSION["username"];
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Admin | Website Lembaga</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Website Lembaga</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Beranda</a></li>
+                    <li><a href="profil.html">Profil</a></li>
+                    <li><a href="layanan.html">Layanan</a></li>
+                    <li><a href="kontak.html">Kontak</a></li>
+                    <li><a href="logout.php">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <h2>Halaman Admin</h2>
+            <p>Selamat datang, <?php echo $username; ?>. Anda berhasil login sebagai admin.</p>
+            <p>Di halaman ini, Anda dapat mengelola konten website lembaga.</p>
+            <p>Anda dapat menambah, mengubah, atau menghapus data yang ada di website.</p>
+            <p>Anda juga dapat melihat statistik peng
